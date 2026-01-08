@@ -1,0 +1,574 @@
+import React, { useState } from ‘react’;
+import { Plus, Trash2, Clock, Users, ChevronDown, ChevronUp, Play } from ‘lucide-react’;
+
+const DRILL_LIBRARY = {
+hitting: [
+{
+name: “Tee Work Station”,
+duration: 15,
+players: “1-3 per station”,
+equipment: “Batting tees, balls, bats, net”,
+description: “Players hit balls off a tee focusing on proper mechanics and contact points.”,
+breakdown: [
+“Set tee at waist height for middle contact”,
+“Focus on hands inside the ball, level swing”,
+“Adjust tee height: low (outside pitch), middle (middle pitch), high (inside pitch)”,
+“10 swings per height position”,
+“Emphasize follow-through and hip rotation”
+],
+objective: “Develop consistent swing mechanics and hand-eye coordination”
+},
+{
+name: “Soft Toss”,
+duration: 15,
+players: “Pairs”,
+equipment: “Balls, bats, net or screen”,
+description: “Partner tosses balls from the side while hitter works on timing and contact.”,
+breakdown: [
+“Tosser kneels 8-10 feet away at 45-degree angle”,
+“Toss ball into hitting zone at medium speed”,
+“Hitter focuses on tracking ball and solid contact”,
+“15-20 swings per player, then switch”,
+“Vary toss locations: inside, outside, high, low”
+],
+objective: “Improve timing, bat speed, and adjustment to different pitch locations”
+},
+{
+name: “Front Toss”,
+duration: 20,
+players: “Small groups (3-4)”,
+equipment: “Balls, bats, L-screen, net”,
+description: “Coach tosses from behind protective screen to simulate game pitching.”,
+breakdown: [
+“Coach positioned 20-25 feet away behind L-screen”,
+“Toss overhand to simulate pitch trajectory”,
+“Start with medium speed, progress to faster tosses”,
+“Mix pitch locations and heights”,
+“Focus on decision-making: swing at strikes, hold on balls”
+],
+objective: “Build confidence facing live pitching with game-like timing”
+},
+{
+name: “Two-Strike Approach”,
+duration: 15,
+players: “Small groups”,
+equipment: “Balls, bats, L-screen”,
+description: “Situational hitting focused on protecting the plate with two strikes.”,
+breakdown: [
+“Choke up 1-2 inches on bat”,
+“Widen stance slightly for better plate coverage”,
+“Shorten swing, focus on contact over power”,
+“Practice fouling off tough pitches”,
+“Stay inside the ball, drive to opposite field”
+],
+objective: “Develop at-bat survival skills and clutch hitting mentality”
+}
+],
+fielding: [
+{
+name: “Ground Ball Progression”,
+duration: 20,
+players: “Full team in lines”,
+equipment: “Balls, gloves”,
+description: “Systematic groundball fielding from basic to advanced techniques.”,
+breakdown: [
+“Start with roll balls: focus on proper glove position and footwork”,
+“Progress to short hops: field ball out front, athletic stance”,
+“Practice forehand and backhand techniques”,
+“Work on charging slow rollers with bare-hand pickup”,
+“End with game-speed grounders requiring quick transfer and throw”
+],
+objective: “Master fundamental fielding mechanics and build confidence”
+},
+{
+name: “Fly Ball Communication”,
+duration: 15,
+players: “Groups of 3-4 in outfield”,
+equipment: “Balls, gloves, fungo bat”,
+description: “Outfielders practice calling for and catching fly balls with communication.”,
+breakdown: [
+“Players spread out 15-20 feet apart”,
+“Coach hits fly balls between players”,
+“Emphasize loud, early communication: ‘I got it!’ or ‘You take it!’”,
+“Practice drop-step technique for balls over head”,
+“Work on coming in aggressively on shallow flies”
+],
+objective: “Prevent collision and dropped balls through clear communication”
+},
+{
+name: “Double Play Feeds”,
+duration: 20,
+players: “Infield groups (SS, 2B, 3B, 1B)”,
+equipment: “Balls, gloves, bases”,
+description: “Middle infielders practice receiving feeds and turning double plays.”,
+breakdown: [
+“Second baseman: practice inside pivot, across-the-bag footwork”,
+“Shortstop: practice timing approach to bag, receiving feeds”,
+“Start slow, focus on footwork and accurate feeds”,
+“Progress to game speed with runners”,
+“Emphasize getting rid of ball quickly with proper arm angle”
+],
+objective: “Develop smooth, fast double play execution”
+},
+{
+name: “First & Third Defense”,
+duration: 15,
+players: “Full infield + catcher”,
+equipment: “Balls, bases, helmets”,
+description: “Practice defensive strategies with runners on first and third.”,
+breakdown: [
+“Review team’s first and third defense strategy”,
+“Practice ‘look’ defense: fake to third, throw to first”,
+“Practice direct throw to third on steal attempt”,
+“Work on catcher-pitcher communication”,
+“Run scenarios: slow runner at third vs fast runner”
+],
+objective: “Execute game situations and prevent easy runs”
+}
+],
+throwing: [
+{
+name: “Long Toss Progression”,
+duration: 15,
+players: “Pairs”,
+equipment: “Balls, gloves”,
+description: “Progressive throwing program to build arm strength and accuracy.”,
+breakdown: [
+“Start 30 feet apart, focus on proper mechanics”,
+“Gradually move back every 5 throws: 45, 60, 75, 90 feet”,
+“Emphasize four-seam grip, point glove at target”,
+“Use legs to generate power, follow through”,
+“Work back in to 60 feet for final throws”
+],
+objective: “Build arm strength, improve throwing mechanics and accuracy”
+},
+{
+name: “Crow Hop Technique”,
+duration: 10,
+players: “Lines or pairs”,
+equipment: “Balls, gloves”,
+description: “Outfielders practice proper crow hop for strong, accurate throws.”,
+breakdown: [
+“Field ground ball, replace feet while preparing to throw”,
+“Small hop: right foot, left foot, throw (for right-handers)”,
+“Gain ground toward target, generate momentum”,
+“Keep shoulders and hips aligned to target”,
+“Practice from outfield positions throwing to bases”
+],
+objective: “Maximize throwing velocity and accuracy from outfield”
+},
+{
+name: “Around the Horn”,
+duration: 10,
+players: “Full infield”,
+equipment: “Balls, gloves, bases”,
+description: “Infielders practice making quick, accurate throws around the bases.”,
+breakdown: [
+“Start at third base, throw to second, to first, to catcher, to third”,
+“Focus on quick transfers and accurate throws”,
+“Time the full rotation, try to improve”,
+“Add competition element between two groups”,
+“Receivers practice catching and immediate transfer”
+],
+objective: “Improve infield cohesion, quick releases, and throwing accuracy”
+},
+{
+name: “Cut-off & Relay”,
+duration: 15,
+players: “Full team”,
+equipment: “Balls, bases”,
+description: “Practice proper positioning and execution of cut-off and relay throws.”,
+breakdown: [
+“Set up outfielders, relay positions, and target bases”,
+“Hit or throw ball to outfield, outfielder throws to relay”,
+“Relay person lines up between ball and target base”,
+“Cut or let ball go through based on situation”,
+“Practice from different outfield positions and scenarios”
+],
+objective: “Execute proper relay positioning and prevent extra bases”
+}
+],
+baserunning: [
+{
+name: “Base Running Form”,
+duration: 10,
+players: “Full team in groups”,
+equipment: “Bases, cones”,
+description: “Teach and practice proper base running mechanics and techniques.”,
+breakdown: [
+“Practice hitting inside part of base with either foot”,
+“Work on rounding bases: aim for inside corner, lean into turn”,
+“Sprint through first base, don’t slow down early”,
+“Practice looking for extra base while rounding”,
+“Emphasize pumping arms and explosive first steps”
+],
+objective: “Develop efficient running form and maximize base-to-base speed”
+},
+{
+name: “Stealing & Leads”,
+duration: 15,
+players: “Small groups at bases”,
+equipment: “Bases, helmets”,
+description: “Practice proper leadoff technique and stealing bases.”,
+breakdown: [
+“Teach proper secondary lead: timing with pitch delivery”,
+“Practice reading pitcher’s motion for steal attempt”,
+“Work on explosive first steps toward next base”,
+“Teach slide technique: bent-leg slide, pop-up slide”,
+“Practice getting back to base on pickoff attempts”
+],
+objective: “Improve base stealing success rate and leadoff fundamentals”
+},
+{
+name: “Situational Base Running”,
+duration: 15,
+players: “Full team”,
+equipment: “Bases, balls, helmets”,
+description: “Practice decision-making in various game situations.”,
+breakdown: [
+“Runner on second: tag up on fly ball, score on base hit”,
+“Runner on first: advance to third on single to outfield”,
+“Practice reading fly balls: tag up vs halfway”,
+“Work on going first to third on ball to right field”,
+“Runners making decisions based on number of outs”
+],
+objective: “Develop game awareness and smart base running decisions”
+},
+{
+name: “Home to Home Sprint”,
+duration: 10,
+players: “Full team in rotation”,
+equipment: “Bases, stopwatch”,
+description: “Timed sprint around all bases for conditioning and competition.”,
+breakdown: [
+“Runner starts in batter’s box, simulates hit”,
+“Sprint and touch all bases, finishing at home plate”,
+“Time each player, track improvement over season”,
+“Emphasize proper turning technique at each base”,
+“Create competition: personal bests, team competitions”
+],
+objective: “Build conditioning, speed, and competitive intensity”
+}
+]
+};
+
+const DrillCard = ({ drill, onAdd, category }) => {
+const [expanded, setExpanded] = useState(false);
+
+return (
+<div className="bg-white border border-gray-200 rounded-lg p-4 mb-3">
+<div className="flex justify-between items-start">
+<div className="flex-1">
+<h4 className="font-semibold text-gray-900">{drill.name}</h4>
+<div className="flex gap-4 text-sm text-gray-600 mt-1">
+<span className="flex items-center gap-1">
+<Clock size={14} /> {drill.duration} min
+</span>
+<span className="flex items-center gap-1">
+<Users size={14} /> {drill.players}
+</span>
+</div>
+</div>
+<div className="flex gap-2">
+<button
+onClick={() => onAdd(drill, category)}
+className=“px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700”
+>
+Add
+</button>
+<button
+onClick={() => setExpanded(!expanded)}
+className=“text-gray-600 hover:text-gray-900”
+>
+{expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+</button>
+</div>
+</div>
+
+```
+  {expanded && (
+    <div className="mt-4 space-y-3">
+      <div>
+        <p className="text-sm text-gray-700">{drill.description}</p>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-900">Equipment:</p>
+        <p className="text-sm text-gray-700">{drill.equipment}</p>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-900">Objective:</p>
+        <p className="text-sm text-gray-700">{drill.objective}</p>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-900">Breakdown:</p>
+        <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1 mt-1">
+          {drill.breakdown.map((step, idx) => (
+            <li key={idx}>{step}</li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  )}
+</div>
+```
+
+);
+};
+
+const PracticeItem = ({ item, index, onRemove, onMoveUp, onMoveDown, isFirst, isLast }) => {
+const [expanded, setExpanded] = useState(false);
+
+return (
+<div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2">
+<div className="flex justify-between items-start">
+<div className="flex-1">
+<div className="flex items-center gap-2">
+<span className="text-sm font-semibold text-gray-500">#{index + 1}</span>
+<h4 className="font-semibold text-gray-900">{item.name}</h4>
+{item.category && (
+<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+{item.category}
+</span>
+)}
+</div>
+<div className="flex gap-4 text-sm text-gray-600 mt-1">
+<span className="flex items-center gap-1">
+<Clock size={14} /> {item.duration} min
+</span>
+<span className="flex items-center gap-1">
+<Users size={14} /> {item.players}
+</span>
+</div>
+</div>
+<div className="flex gap-2">
+<button
+onClick={() => onMoveUp(index)}
+disabled={isFirst}
+className=“text-gray-600 hover:text-gray-900 disabled:text-gray-300”
+>
+↑
+</button>
+<button
+onClick={() => onMoveDown(index)}
+disabled={isLast}
+className=“text-gray-600 hover:text-gray-900 disabled:text-gray-300”
+>
+↓
+</button>
+<button
+onClick={() => setExpanded(!expanded)}
+className=“text-gray-600 hover:text-gray-900”
+>
+{expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+</button>
+<button
+onClick={() => onRemove(index)}
+className=“text-red-600 hover:text-red-700”
+>
+<Trash2 size={18} />
+</button>
+</div>
+</div>
+
+```
+  {expanded && (
+    <div className="mt-4 space-y-2">
+      <div>
+        <p className="text-sm text-gray-700">{item.description}</p>
+      </div>
+      {item.breakdown && (
+        <div>
+          <p className="text-sm font-semibold text-gray-900">Breakdown:</p>
+          <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1 mt-1">
+            {item.breakdown.map((step, idx) => (
+              <li key={idx}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+```
+
+);
+};
+
+export default function SoftballPracticePlanner() {
+const [activeTab, setActiveTab] = useState(‘build’);
+const [activeCategory, setActiveCategory] = useState(‘hitting’);
+const [practice, setPractice] = useState([
+{
+name: “Team Stretch & Warm-up”,
+duration: 12,
+players: “Full team”,
+description: “Dynamic stretching routine to prepare players for practice”,
+breakdown: [
+“Jog around field (2 minutes)”,
+“Arm circles forward/backward (30 seconds each)”,
+“Leg swings front/back and side/side (1 minute)”,
+“High knees and butt kicks (1 minute)”,
+“Walking lunges with torso twist (1 minute)”,
+“Inchworms (30 seconds)”,
+“Light throwing progression (5 minutes)”
+],
+isWarmup: true
+}
+]);
+
+const addDrillToPractice = (drill, category) => {
+setPractice([…practice, { …drill, category }]);
+};
+
+const removeDrill = (index) => {
+if (practice[index].isWarmup) {
+alert(“Cannot remove the warm-up/stretch section”);
+return;
+}
+setPractice(practice.filter((_, i) => i !== index));
+};
+
+const moveDrillUp = (index) => {
+if (index <= 1) return; // Can’t move past warm-up
+const newPractice = […practice];
+[newPractice[index], newPractice[index - 1]] = [newPractice[index - 1], newPractice[index]];
+setPractice(newPractice);
+};
+
+const moveDrillDown = (index) => {
+if (index >= practice.length - 1 || index === 0) return; // Can’t move warm-up
+const newPractice = […practice];
+[newPractice[index], newPractice[index + 1]] = [newPractice[index + 1], newPractice[index]];
+setPractice(newPractice);
+};
+
+const getTotalDuration = () => {
+return practice.reduce((sum, item) => sum + item.duration, 0);
+};
+
+const clearPractice = () => {
+setPractice([practice[0]]); // Keep only warm-up
+};
+
+const categories = [
+{ id: ‘hitting’, label: ‘Hitting’, color: ‘bg-red-500’ },
+{ id: ‘fielding’, label: ‘Fielding’, color: ‘bg-green-500’ },
+{ id: ‘throwing’, label: ‘Throwing’, color: ‘bg-blue-500’ },
+{ id: ‘baserunning’, label: ‘Base Running’, color: ‘bg-purple-500’ }
+];
+
+return (
+<div className="min-h-screen bg-gray-100 p-4">
+<div className="max-w-6xl mx-auto">
+<div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+<h1 className="text-3xl font-bold text-gray-900 mb-2">Softball Practice Planner</h1>
+<p className="text-gray-600">Plan effective practices for 13+ girls softball teams</p>
+</div>
+
+```
+    <div className="bg-white rounded-lg shadow-lg mb-6">
+      <div className="flex border-b">
+        <button
+          onClick={() => setActiveTab('build')}
+          className={`flex-1 py-4 font-semibold ${
+            activeTab === 'build'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Build Practice
+        </button>
+        <button
+          onClick={() => setActiveTab('drills')}
+          className={`flex-1 py-4 font-semibold ${
+            activeTab === 'drills'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Drill Library
+        </button>
+      </div>
+
+      {activeTab === 'build' && (
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Practice Plan</h2>
+              <p className="text-sm text-gray-600">Total Duration: {getTotalDuration()} minutes</p>
+            </div>
+            <button
+              onClick={clearPractice}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Clear All Drills
+            </button>
+          </div>
+
+          {practice.length === 1 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-blue-900">
+                <Play className="inline mr-2" size={18} />
+                Go to the <strong>Drill Library</strong> tab to add drills to your practice plan
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {practice.map((item, index) => (
+              <PracticeItem
+                key={index}
+                item={item}
+                index={index}
+                onRemove={removeDrill}
+                onMoveUp={moveDrillUp}
+                onMoveDown={moveDrillDown}
+                isFirst={index === 0}
+                isLast={index === practice.length - 1}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'drills' && (
+        <div className="p-6">
+          <div className="flex gap-2 mb-6 flex-wrap">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-4 py-2 rounded font-semibold ${
+                  activeCategory === cat.id
+                    ? `${cat.color} text-white`
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          <h3 className="text-xl font-bold text-gray-900 mb-4 capitalize">
+            {activeCategory} Drills
+          </h3>
+
+          <div>
+            {DRILL_LIBRARY[activeCategory].map((drill, index) => (
+              <DrillCard
+                key={index}
+                drill={drill}
+                category={activeCategory}
+                onAdd={addDrillToPractice}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+```
+
+);
+}
